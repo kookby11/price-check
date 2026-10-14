@@ -26,7 +26,7 @@
   .page.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-  /* Header หน้าหลัก */
+  /* ---------- Header หน้าหลัก ---------- */
   .top{background:linear-gradient(160deg,var(--p1) 0%,var(--p2) 70%,var(--p3) 100%);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 20px 24px;border-radius:0 0 30px 30px;position:relative;overflow:hidden}
   .top::before{content:'';position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.06);top:-120px;right:-80px}
   .top-row{display:flex;align-items:center;gap:12px;position:relative}
@@ -44,7 +44,7 @@
   .bal-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;opacity:.85;position:relative;z-index:1;gap:10px}
   .chip-card{font-size:10px;letter-spacing:2px;font-weight:600;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.15);white-space:nowrap}
 
-  /* ปุ่มลัด */
+  /* ---------- ปุ่มลัด ---------- */
   .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:16px 6px;margin:16px}
   .qa{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;text-align:center}
   .qa-ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;transition:transform .12s}
@@ -52,13 +52,13 @@
   .c1{background:#ede9fe;color:#5b3fd1}.c2{background:#d1fae5;color:#059669}
   .c3{background:#fef3c7;color:#d97706}.c4{background:#e0f2fe;color:#0284c7}
 
-  /* ค้นหา */
+  /* ---------- ค้นหา ---------- */
   .search{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:6px 6px 6px 16px;box-shadow:var(--sh);border:1.5px solid transparent;margin:0 16px 8px;color:var(--muted)}
   .search:focus-within{border-color:var(--p3)}
   .search input{flex:1;min-width:0;border:0;outline:none;background:transparent;font-size:16px;height:44px;color:var(--ink)}
   .search button{height:44px;padding:0 18px;border-radius:12px;background:var(--p2);color:#fff;font-weight:500}
 
-  /* รายการ */
+  /* ---------- รายการ ---------- */
   .sec-head{display:flex;justify-content:space-between;align-items:center;margin:20px 20px 10px}
   .sec-head h3{font-size:16px;font-weight:600}
   .sec-head button{font-size:13px;color:var(--p2);font-weight:500}
@@ -73,13 +73,13 @@
   .tx-amt{font-weight:600;font-size:15px;white-space:nowrap}
   .empty{text-align:center;color:var(--muted);font-size:13px;padding:28px 10px}
 
-  /* หัวหน้าย่อย */
+  /* ---------- หัวหน้าย่อย ---------- */
   .phead{background:linear-gradient(160deg,var(--p1),var(--p2));color:#fff;padding:calc(22px + env(safe-area-inset-top)) 20px 60px;border-radius:0 0 30px 30px}
   .phead-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
   .phead h2{font-size:22px;font-weight:600}
   .phead p{font-size:13px;opacity:.75;margin-top:2px}
 
-  /* ฟอร์ม */
+  /* ---------- ฟอร์ม ---------- */
   .form{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);margin:0 16px;padding:20px 18px 8px}
   .field{margin-bottom:14px}
   .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
@@ -105,7 +105,7 @@
   .pad{margin:16px}
   .lift{margin-top:-38px}
 
-  /* แถบเมนูล่าง */
+  /* ---------- แถบเมนูล่าง ---------- */
   .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;background:rgba(255,255,255,.97);display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:8px 4px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px -12px rgba(30,18,89,.25);border-radius:22px 22px 0 0;z-index:30}
   .tab,.fab-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
   .tab.active{color:var(--p2);font-weight:500}
@@ -113,7 +113,30 @@
   .fab:active{transform:scale(.94)}
   .fab-wrap span{color:var(--p2);font-weight:500}
 
-  /* สลิป */
+  /* ---------- หน้าสแกน ---------- */
+  .scanner{position:fixed;inset:0;background:#000;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s}
+  .scanner.open{opacity:1;pointer-events:auto}
+  .sc-video{position:absolute;inset:0;overflow:hidden}
+  #reader{width:100%;height:100%}
+  #reader video{width:100%!important;height:100%!important;object-fit:cover}
+  .sc-mask{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+  .sc-frame{position:relative;width:78%;max-width:340px;aspect-ratio:1.7;border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.55)}
+  .sc-frame i{position:absolute;width:34px;height:34px;border:0 solid var(--mint)}
+  .sc-frame i:nth-child(1){top:0;left:0;border-width:4px 0 0 4px;border-top-left-radius:22px}
+  .sc-frame i:nth-child(2){top:0;right:0;border-width:4px 4px 0 0;border-top-right-radius:22px}
+  .sc-frame i:nth-child(3){bottom:0;left:0;border-width:0 0 4px 4px;border-bottom-left-radius:22px}
+  .sc-frame i:nth-child(4){bottom:0;right:0;border-width:0 4px 4px 0;border-bottom-right-radius:22px}
+  .laser{position:absolute;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--mint),transparent);box-shadow:0 0 14px var(--mint);animation:laser 1.8s ease-in-out infinite}
+  @keyframes laser{0%,100%{top:12%}50%{top:88%}}
+  .sc-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;color:#fff;z-index:2}
+  .sc-top h3{font-size:16px;font-weight:500}
+  .sc-btn{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;display:grid;place-items:center}
+  .sc-btn.on{background:#fde047;color:#111}
+  .sc-hint{position:absolute;left:0;right:0;top:calc(50% + 115px);text-align:center;color:#fff;font-size:14px;padding:0 24px;z-index:2}
+  .sc-bottom{position:absolute;left:0;right:0;bottom:0;padding:16px 20px calc(24px + env(safe-area-inset-bottom));display:flex;gap:10px;z-index:2}
+  .sc-bottom .btn{background:rgba(255,255,255,.16);color:#fff;font-weight:500;font-size:15px}
+
+  /* ---------- สลิป ---------- */
   .overlay{position:fixed;inset:0;background:rgba(10,8,30,.55);opacity:0;pointer-events:none;transition:.25s;z-index:40}
   .overlay.open{opacity:1;pointer-events:auto}
   .slip{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--bg);border-radius:28px 28px 0 0;padding:12px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:50;max-height:92vh;overflow:auto}
@@ -147,7 +170,7 @@
   .spin.light{width:20px;height:20px;border-color:rgba(255,255,255,.35);border-top-color:#fff}
   @keyframes sp{to{transform:rotate(360deg)}}
 
-  /* Toast */
+  /* ---------- Toast ---------- */
   .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-180%);background:#181b34;color:#fff;padding:12px 18px;border-radius:14px;font-size:14px;z-index:80;transition:transform .3s;box-shadow:var(--sh);max-width:92%;width:max-content}
   .toast.show{transform:translate(-50%,0)}
   .toast.ok{border-left:4px solid var(--mint)}
@@ -157,7 +180,7 @@
 <body>
 <div class="app">
 
-  <!-- หน้าหลัก -->
+  <!-- ===================== หน้าหลัก ===================== -->
   <section class="page active" id="pg-home">
     <header class="top">
       <div class="top-row">
@@ -166,7 +189,7 @@
         </div>
         <div>
           <div class="hello" id="hello">สวัสดี</div>
-          <div class="store" id="storeName">ร้าน บ้านโบว์</div>
+          <div class="store" id="storeName">ร้านขายของชำ</div>
         </div>
         <button class="icon-round" id="syncBtn" onclick="loadProducts(true)" aria-label="อัปเดตข้อมูล">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg>
@@ -180,13 +203,13 @@
     </header>
 
     <div class="quick">
-      <button class="qa" onclick="triggerSnap('check')">
+      <button class="qa" onclick="openScanner('check')">
         <div class="qa-ic c1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg></div>
-        ถ่ายสแกนราคา
+        สแกนราคา
       </button>
-      <button class="qa" onclick="triggerSnap('check')">
+      <button class="qa" onclick="pickImage('check')">
         <div class="qa-ic c2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
-        ถ่ายรูปสินค้า
+        สแกนจากรูป
       </button>
       <button class="qa" onclick="go('add')">
         <div class="qa-ic c3"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
@@ -208,7 +231,7 @@
     <div class="list" id="homeHist"></div>
   </section>
 
-  <!-- รายการสินค้า -->
+  <!-- ===================== รายการสินค้า ===================== -->
   <section class="page" id="pg-list">
     <div class="phead">
       <div class="phead-row">
@@ -225,7 +248,7 @@
     <div class="list" style="margin-top:8px" id="prodList"></div>
   </section>
 
-  <!-- ประวัติ -->
+  <!-- ===================== ประวัติ ===================== -->
   <section class="page" id="pg-history">
     <div class="phead">
       <div class="phead-row">
@@ -238,16 +261,16 @@
     <div class="list lift" id="histList"></div>
   </section>
 
-  <!-- เพิ่มสินค้า -->
+  <!-- ===================== เพิ่มสินค้า ===================== -->
   <section class="page" id="pg-add">
     <div class="phead"><h2>เพิ่มสินค้าใหม่</h2><p>ข้อมูลจะบันทึกลง Google Sheets ทันที</p></div>
     <div class="form lift">
       <div class="field">
         <label>บาร์โค้ด</label>
         <div class="inrow">
-          <input id="aCode" inputmode="numeric" autocomplete="off" placeholder="พิมพ์ หรือกดปุ่มถ่ายรูป">
-          <button type="button" class="scan-mini" onclick="triggerSnap('add')" aria-label="ถ่ายรูปบาร์โค้ด">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <input id="aCode" inputmode="numeric" autocomplete="off" placeholder="พิมพ์ หรือกดปุ่มสแกน">
+          <button type="button" class="scan-mini" onclick="openScanner('add')" aria-label="สแกนบาร์โค้ด">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg>
           </button>
         </div>
       </div>
@@ -277,7 +300,7 @@
   </section>
 </div>
 
-<!-- แถบเมนูล่าง -->
+<!-- ===================== แถบเมนูล่าง ===================== -->
 <nav class="nav">
   <button class="tab active" data-pg="home" onclick="go('home')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
@@ -288,10 +311,10 @@
     <span>สินค้า</span>
   </button>
   <div class="fab-wrap">
-    <button class="fab" onclick="triggerSnap('check')" aria-label="ถ่ายรูปสแกน">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <button class="fab" onclick="openScanner('check')" aria-label="สแกน">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg>
     </button>
-    <span>ถ่ายสแกน</span>
+    <span>สแกน</span>
   </div>
   <button class="tab" data-pg="history" onclick="go('history')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
@@ -303,19 +326,47 @@
   </button>
 </nav>
 
-<!-- ซ่อน input สำหรับถ่ายภาพกล้องมือถือ -->
-<input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+<!-- ===================== หน้าสแกน ===================== -->
+<div class="scanner" id="scanner">
+  <div class="sc-video"><div id="reader"></div></div>
+  <div class="sc-mask"><div class="sc-frame"><i></i><i></i><i></i><i></i><div class="laser"></div></div></div>
+  <div class="sc-top">
+    <button class="sc-btn" onclick="closeScanner()" aria-label="ย้อนกลับ">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h3 id="scTitle">สแกนเช็คราคา</h3>
+    <button class="sc-btn" id="torchBtn" onclick="toggleTorch()" style="visibility:hidden" aria-label="ไฟฉาย">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
+    </button>
+  </div>
+  <div class="sc-hint" id="scHint">วางบาร์โค้ดให้อยู่ในกรอบ</div>
+  <div class="sc-bottom">
+    <button class="btn" onclick="pickImage(scanMode)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+      เลือกรูป
+    </button>
+    <button class="btn" onclick="typeManually()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+      พิมพ์รหัส
+    </button>
+  </div>
+</div>
+<input type="file" id="fileInput" accept="image/*" hidden>
 
-<!-- สลิปผลลัพธ์ -->
+<!-- ===================== สลิปผลลัพธ์ ===================== -->
 <div class="overlay" id="slipBg" onclick="closeSlip()"></div>
 <div class="slip" id="slip"><div class="grip"></div><div id="slipBody"></div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+  /* =========================================================
+     ตั้งค่า (แก้ 2 บรรทัดนี้)
+     ========================================================= */
   const API_URL    = 'https://script.google.com/macros/s/AKfycby7pAJjsN_8vLJhmxtfvO0nVt3jmOgWPOVSb36fJ4pzkvHScFpDcgFlfDsayCPOYuCF_g/exec';
   const STORE_NAME = 'ร้าน บ้านโบว์';
 
+  /* ---------- เครื่องมือ ---------- */
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt = n => { n = Number(n) || 0; return n.toLocaleString('th-TH', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
@@ -330,9 +381,8 @@
 
   let products = [];
   const map = new Map();
-  let currentSnapMode = 'check';
 
-  /* API */
+  /* ---------- API ---------- */
   async function apiGet(params) {
     const r = await fetch(API_URL + '?' + new URLSearchParams(params));
     if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -348,9 +398,12 @@
     return r.json();
   }
 
-  /* โหลดข้อมูลสินค้า */
+  /* ---------- โหลดข้อมูลสินค้า ---------- */
   async function loadProducts(manual) {
-    if (!API_URL.startsWith('https://')) return toast('ยังไม่ได้ตั้งค่า API_URL', 'err');
+    if (!API_URL.startsWith('https://')) {
+      $('syncTime').textContent = 'ยังไม่ได้ตั้งค่า API_URL';
+      return toast('กรุณาใส่ API_URL ในไฟล์ index.html', 'err');
+    }
     $('syncBtn').classList.add('spinning');
     $('syncTime').textContent = 'กำลังซิงก์ข้อมูล...';
     try {
@@ -361,7 +414,7 @@
       $('syncTime').textContent = 'อัปเดตล่าสุด ' + nowTime() + ' น.';
       if (manual) toast('อัปเดตข้อมูลเรียบร้อย', 'ok');
     } catch (e) {
-      $('syncTime').textContent = 'ออฟไลน์ · ใช้ข้อมูลในเครื่อง';
+      $('syncTime').textContent = 'ออฟไลน์ · ใช้ข้อมูลที่บันทึกไว้';
       toast('เชื่อมต่อไม่ได้: ' + e.message, 'err');
     } finally {
       $('syncBtn').classList.remove('spinning');
@@ -384,15 +437,15 @@
     localStorage.setItem('pc_cache', JSON.stringify(products));
   }
 
-  /* ค้นหาราคา */
+  /* ---------- ค้นหาราคา ---------- */
   let slipCode = null;
 
   async function lookup(code) {
     code = String(code || '').trim();
-    if (!code) return toast('กรุณากรอกหรือถ่ายบาร์โค้ด', 'err');
+    if (!code) return toast('กรุณากรอกหรือสแกนบาร์โค้ด', 'err');
 
     const hit = map.get(code);
-    if (hit) {
+    if (hit) {                      // เจอในเครื่อง แสดงทันที แล้วเช็กราคาล่าสุดจากชีตอีกรอบ
       showSlip('found', hit);
       addHistory(hit);
       verify(code, hit);
@@ -432,7 +485,7 @@
   }
   $('homeQ').addEventListener('keydown', e => { if (e.key === 'Enter') homeSearch(); });
 
-  /* สลิป */
+  /* ---------- สลิป ---------- */
   function showSlip(state, p) {
     slipCode = p.barcode;
     let html = '';
@@ -446,7 +499,7 @@
           <div class="rc-sub mono">บาร์โค้ด ${esc(p.barcode)}</div>
         </div></div>
         <div class="rc-acts">
-          <button class="btn btn-light" onclick="closeSlip();triggerSnap('check')">ถ่ายใหม่</button>
+          <button class="btn btn-light" onclick="closeSlip();openScanner('check')">สแกนใหม่</button>
           <button class="btn btn-primary" onclick="addFromSlip()">เพิ่มสินค้านี้</button>
         </div>`;
     } else {
@@ -470,7 +523,7 @@
         </div>
         <div class="rc-acts">
           <button class="btn btn-light" onclick="closeSlip()">ปิด</button>
-          <button class="btn btn-primary" onclick="closeSlip();triggerSnap('check')">ถ่ายต่อ</button>
+          <button class="btn btn-primary" onclick="closeSlip();openScanner('check')">สแกนต่อ</button>
         </div>`;
     }
     $('slipBody').innerHTML = html;
@@ -492,40 +545,98 @@
     setTimeout(() => $('aName').focus(), 300);
   }
 
-  /* =========================================================
-     ระบบถ่ายภาพเพื่ออ่านบาร์โค้ด (Snap & Read)
-     ========================================================= */
-  function triggerSnap(mode) {
-    currentSnapMode = mode;
-    $('cameraInput').click();
+  /* ---------- สแกนเนอร์ ---------- */
+  let qr = null, scanMode = 'check', scanLock = false, torchOn = false;
+
+  function getQr() {
+    if (!qr) {
+      const F = Html5QrcodeSupportedFormats;
+      qr = new Html5Qrcode('reader', {
+        verbose: false,
+        formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128, F.CODE_39, F.ITF, F.QR_CODE],
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+      });
+    }
+    return qr;
   }
 
-  $('cameraInput').addEventListener('change', async e => {
+  async function openScanner(mode) {
+    scanMode = mode;
+    scanLock = false;
+    if (qr && qr.isScanning) return;
+    $('scTitle').textContent = mode === 'add' ? 'สแกนสินค้าใหม่' : 'สแกนเช็คราคา';
+    $('scanner').classList.add('open');
+    $('scHint').textContent = 'กำลังเปิดกล้อง...';
+    $('torchBtn').style.visibility = 'hidden';
+    try {
+      await getQr().start({ facingMode: 'environment' }, { fps: 15, disableFlip: true }, onScan, () => {});
+      $('scHint').textContent = 'วางบาร์โค้ดให้อยู่ในกรอบ';
+      setupTorch();
+    } catch (e) {
+      $('scHint').textContent = 'เปิดกล้องไม่ได้ · กรุณาอนุญาตการใช้กล้อง หรือกด "เลือกรูป"';
+    }
+  }
+
+  async function closeScanner() {
+    if (qr && qr.isScanning) { try { await qr.stop(); } catch (e) {} }
+    torchOn = false;
+    $('torchBtn').classList.remove('on');
+    $('scanner').classList.remove('open');
+  }
+
+  function onScan(text) {
+    if (scanLock) return;
+    scanLock = true;
+    beep();
+    closeScanner().then(() => handleCode(text));
+  }
+
+  function handleCode(code) {
+    if (scanMode === 'add') fillAdd(code);
+    else lookup(code);
+  }
+
+  function setupTorch() {
+    try {
+      const t = qr.getRunningTrackCameraCapabilities().torchFeature();
+      if (t.isSupported()) $('torchBtn').style.visibility = 'visible';
+    } catch (e) {}
+  }
+
+  async function toggleTorch() {
+    try {
+      torchOn = !torchOn;
+      await qr.getRunningTrackCameraCapabilities().torchFeature().apply(torchOn);
+      $('torchBtn').classList.toggle('on', torchOn);
+    } catch (e) {
+      toast('เครื่องนี้ใช้ไฟฉายผ่านเว็บไม่ได้', 'err');
+    }
+  }
+
+  function typeManually() {
+    const m = scanMode;
+    closeScanner();
+    if (m === 'add') setTimeout(() => $('aCode').focus(), 300);
+    else { go('home'); setTimeout(() => $('homeQ').focus(), 300); }
+  }
+
+  function pickImage(mode) {
+    scanMode = mode;
+    $('fileInput').click();
+  }
+
+  $('fileInput').addEventListener('change', async e => {
     const file = e.target.files[0];
     e.target.value = '';
     if (!file) return;
-
-    toast('กำลังอ่านบาร์โค้ดจากภาพ...', 'ok');
+    if (qr && qr.isScanning) { try { await qr.stop(); } catch (err) {} }
+    $('scanner').classList.remove('open');
     try {
-      const html5QrCode = new Html5Qrcode("reader-temp", { verbose: false });
-      // สร้างตัวอ่านชั่วคราว
-      let div = $('reader-temp');
-      if(!div) {
-        div = document.createElement('div');
-        div.id = 'reader-temp';
-        div.style.display = 'none';
-        document.body.appendChild(div);
-      }
-
-      const decodedText = await html5QrCode.scanFile(file, true);
+      const text = await getQr().scanFile(file, false);
       beep();
-      if (currentSnapMode === 'add') {
-        fillAdd(decodedText);
-      } else {
-        lookup(decodedText);
-      }
+      handleCode(text);
     } catch (err) {
-      toast('อ่านบาร์โค้ดไม่เจอ ลองถ่ายให้ใกล้และชัดขึ้น', 'err');
+      toast('อ่านบาร์โค้ดจากรูปไม่ได้ ลองถ่ายให้ใกล้และชัดขึ้น', 'err');
     }
   });
 
@@ -540,7 +651,7 @@
     } catch (e) {}
   }
 
-  /* เพิ่มสินค้า */
+  /* ---------- เพิ่มสินค้า ---------- */
   function fillAdd(code) {
     $('aCode').value = code;
     go('add');
@@ -591,7 +702,7 @@
     }
   }
 
-  /* รายการสินค้า / ประวัติ */
+  /* ---------- รายการสินค้า / ประวัติ ---------- */
   const txHTML = (p, sub) => `
     <div class="tx" data-code="${esc(p.barcode)}">
       <div class="tx-ic">${ICON.bag}</div>
@@ -646,14 +757,14 @@
     if (el) lookup(el.dataset.code);
   });
 
-  /* เปลี่ยนหน้า */
+  /* ---------- เปลี่ยนหน้า ---------- */
   function go(pg) {
     document.querySelectorAll('.page').forEach(s => s.classList.toggle('active', s.id === 'pg-' + pg));
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.pg === pg));
     window.scrollTo({ top: 0 });
   }
 
-  /* Toast */
+  /* ---------- Toast ---------- */
   let toastTimer;
   function toast(msg, type) {
     const t = $('toast');
@@ -663,12 +774,12 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
   }
 
-  /* เริ่มต้น */
+  /* ---------- เริ่มต้น ---------- */
   (function init() {
     $('storeName').textContent = STORE_NAME;
     const h = new Date().getHours();
     $('hello').textContent = h < 12 ? 'สวัสดีตอนเช้า' : h < 17 ? 'สวัสดีตอนบ่าย' : 'สวัสดีตอนเย็น';
-    $('aPin').value = localStorage.getItem('pc_pin'] || '';
+    $('aPin').value = localStorage.getItem('pc_pin') || '';
     try { const c = JSON.parse(localStorage.getItem('pc_cache') || '[]'); if (c.length) setProducts(c); } catch (e) {}
     renderList();
     renderHistory();
