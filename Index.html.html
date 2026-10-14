@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1e1259">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>เช็คราคาสินค้า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+  :root{
+    --p1:#1e1259;--p2:#4a2fbd;--p3:#7b5cf0;--mint:#14c8a4;
+    --bg:#f3f4fa;--card:#fff;--ink:#181b34;--muted:#8b8fa7;--line:#eceef5;
+    --red:#ef4444;--green:#10b981;--r:20px;--sh:0 10px 30px -12px rgba(30,18,89,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);font-family:'Prompt',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  button,input{font:inherit;color:inherit}
+  button{cursor:pointer;border:0;background:none}
+  svg{flex-shrink:0}
+  .app{max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+  .page{display:none;animation:fade .3s ease}
+  .page.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* ---------- Header หน้าหลัก ---------- */
+  .top{background:linear-gradient(160deg,var(--p1) 0%,var(--p2) 70%,var(--p3) 100%);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 20px 24px;border-radius:0 0 30px 30px;position:relative;overflow:hidden}
+  .top::before{content:'';position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.06);top:-120px;right:-80px}
+  .top-row{display:flex;align-items:center;gap:12px;position:relative}
+  .avatar{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.3)}
+  .hello{font-size:12px;opacity:.75}
+  .store{font-size:17px;font-weight:600}
+  .icon-round{margin-left:auto;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;display:grid;place-items:center}
+  .spinning svg{animation:sp .8s linear infinite}
+
+  .balance{margin-top:20px;position:relative;border-radius:22px;padding:18px 20px;background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.22);overflow:hidden}
+  .balance::after{content:'';position:absolute;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(20,200,164,.5),transparent 70%);right:-40px;bottom:-70px}
+  .bal-label{font-size:13px;opacity:.8}
+  .bal-num{font-size:38px;font-weight:600;margin-top:2px;letter-spacing:.5px}
+  .bal-num small{font-size:15px;font-weight:400;opacity:.8}
+  .bal-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;opacity:.85;position:relative;z-index:1;gap:10px}
+  .chip-card{font-size:10px;letter-spacing:2px;font-weight:600;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.15);white-space:nowrap}
+
+  /* ---------- ปุ่มลัด ---------- */
+  .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:16px 6px;margin:16px}
+  .qa{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;text-align:center}
+  .qa-ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;transition:transform .12s}
+  .qa:active .qa-ic{transform:scale(.9)}
+  .c1{background:#ede9fe;color:#5b3fd1}.c2{background:#d1fae5;color:#059669}
+  .c3{background:#fef3c7;color:#d97706}.c4{background:#e0f2fe;color:#0284c7}
+
+  /* ---------- ค้นหา ---------- */
+  .search{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:6px 6px 6px 16px;box-shadow:var(--sh);border:1.5px solid transparent;margin:0 16px 8px;color:var(--muted)}
+  .search:focus-within{border-color:var(--p3)}
+  .search input{flex:1;min-width:0;border:0;outline:none;background:transparent;font-size:16px;height:44px;color:var(--ink)}
+  .search button{height:44px;padding:0 18px;border-radius:12px;background:var(--p2);color:#fff;font-weight:500}
+
+  /* ---------- รายการ ---------- */
+  .sec-head{display:flex;justify-content:space-between;align-items:center;margin:20px 20px 10px}
+  .sec-head h3{font-size:16px;font-weight:600}
+  .sec-head button{font-size:13px;color:var(--p2);font-weight:500}
+  .list{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);margin:0 16px;padding:2px 16px}
+  .tx{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer}
+  .tx:last-child{border-bottom:0}
+  .tx:active{opacity:.6}
+  .tx-ic{width:42px;height:42px;border-radius:14px;background:#f1edff;color:var(--p2);display:grid;place-items:center}
+  .tx-mid{flex:1;min-width:0}
+  .tx-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tx-sub{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tx-amt{font-weight:600;font-size:15px;white-space:nowrap}
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:28px 10px}
+
+  /* ---------- หัวหน้าย่อย ---------- */
+  .phead{background:linear-gradient(160deg,var(--p1),var(--p2));color:#fff;padding:calc(22px + env(safe-area-inset-top)) 20px 60px;border-radius:0 0 30px 30px}
+  .phead-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .phead h2{font-size:22px;font-weight:600}
+  .phead p{font-size:13px;opacity:.75;margin-top:2px}
+
+  /* ---------- ฟอร์ม ---------- */
+  .form{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);margin:0 16px;padding:20px 18px 8px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .field input{width:100%;height:52px;border-radius:14px;border:1.5px solid var(--line);background:#fafbff;padding:0 14px;font-size:16px;outline:none;color:var(--ink)}
+  .field input:focus{border-color:var(--p3);background:#fff}
+  .inrow{display:flex;gap:8px}
+  .inrow input{flex:1;min-width:0}
+  .scan-mini{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--p2),var(--p3));color:#fff;display:grid;place-items:center;flex-shrink:0}
+  .amount{text-align:center;padding:16px 0;border-top:1.5px dashed var(--line);border-bottom:1.5px dashed var(--line);margin:4px 0 16px}
+  .amount label{font-size:13px;color:var(--muted)}
+  .amount-row{display:flex;align-items:baseline;justify-content:center;gap:6px;margin-top:4px}
+  .amount-row span{font-size:26px;color:var(--p2);font-weight:600}
+  .amount input{width:190px;border:0;outline:none;text-align:center;font-size:44px;font-weight:600;color:var(--ink);background:transparent}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .chip{padding:7px 14px;border-radius:99px;background:#f1f2f8;font-size:13px}
+  .chip.active{background:var(--p2);color:#fff}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:54px;border-radius:16px;font-weight:600;font-size:16px;transition:transform .12s}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.6}
+  .btn-primary{background:linear-gradient(135deg,var(--p2),var(--p3));color:#fff;box-shadow:0 10px 24px -10px rgba(74,47,189,.7)}
+  .btn-light{background:#e9eaf3;color:var(--ink)}
+  .pad{margin:16px}
+  .lift{margin-top:-38px}
+
+  /* ---------- แถบเมนูล่าง ---------- */
+  .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;background:rgba(255,255,255,.97);display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:8px 4px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px -12px rgba(30,18,89,.25);border-radius:22px 22px 0 0;z-index:30}
+  .tab,.fab-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+  .tab.active{color:var(--p2);font-weight:500}
+  .fab{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--p2),var(--p3));color:#fff;display:grid;place-items:center;margin-top:-34px;border:4px solid #fff;box-shadow:0 10px 24px -6px rgba(74,47,189,.6)}
+  .fab:active{transform:scale(.94)}
+  .fab-wrap span{color:var(--p2);font-weight:500}
+
+  /* ---------- หน้าสแกน ---------- */
+  .scanner{position:fixed;inset:0;background:#000;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s}
+  .scanner.open{opacity:1;pointer-events:auto}
+  .sc-video{position:absolute;inset:0;overflow:hidden}
+  #reader{width:100%;height:100%}
+  #reader video{width:100%!important;height:100%!important;object-fit:cover}
+  .sc-mask{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+  .sc-frame{position:relative;width:78%;max-width:340px;aspect-ratio:1.7;border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.55)}
+  .sc-frame i{position:absolute;width:34px;height:34px;border:0 solid var(--mint)}
+  .sc-frame i:nth-child(1){top:0;left:0;border-width:4px 0 0 4px;border-top-left-radius:22px}
+  .sc-frame i:nth-child(2){top:0;right:0;border-width:4px 4px 0 0;border-top-right-radius:22px}
+  .sc-frame i:nth-child(3){bottom:0;left:0;border-width:0 0 4px 4px;border-bottom-left-radius:22px}
+  .sc-frame i:nth-child(4){bottom:0;right:0;border-width:0 4px 4px 0;border-bottom-right-radius:22px}
+  .laser{position:absolute;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--mint),transparent);box-shadow:0 0 14px var(--mint);animation:laser 1.8s ease-in-out infinite}
+  @keyframes laser{0%,100%{top:12%}50%{top:88%}}
+  .sc-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;color:#fff;z-index:2}
+  .sc-top h3{font-size:16px;font-weight:500}
+  .sc-btn{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;display:grid;place-items:center}
+  .sc-btn.on{background:#fde047;color:#111}
+  .sc-hint{position:absolute;left:0;right:0;top:calc(50% + 115px);text-align:center;color:#fff;font-size:14px;padding:0 24px;z-index:2}
+  .sc-bottom{position:absolute;left:0;right:0;bottom:0;padding:16px 20px calc(24px + env(safe-area-inset-bottom));display:flex;gap:10px;z-index:2}
+  .sc-bottom .btn{background:rgba(255,255,255,.16);color:#fff;font-weight:500;font-size:15px}
+
+  /* ---------- สลิป ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(10,8,30,.55);opacity:0;pointer-events:none;transition:.25s;z-index:40}
+  .overlay.open{opacity:1;pointer-events:auto}
+  .slip{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--bg);border-radius:28px 28px 0 0;padding:12px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:50;max-height:92vh;overflow:auto}
+  .slip.open{transform:none}
+  .grip{width:42px;height:5px;border-radius:9px;background:#d8dbe8;margin:0 auto 14px}
+  .receipt{background:#fff;border-radius:22px;box-shadow:var(--sh);overflow:hidden}
+  .rc-top{padding:24px 20px 16px;text-align:center}
+  .rc-ic{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;margin:0 auto 10px}
+  .rc-ic svg{width:30px;height:30px;stroke-width:2.6}
+  .rc-ic.ok{background:#d1fae5;color:var(--green)}
+  .rc-ic.bad{background:#fee2e2;color:var(--red)}
+  .rc-title{font-size:14px;color:var(--muted)}
+  .rc-price{font-size:50px;font-weight:600;color:var(--p1);line-height:1.15;margin-top:4px}
+  .rc-price small{font-size:24px;margin-right:4px;color:var(--p2)}
+  .rc-unit{font-size:13px;color:var(--muted)}
+  .rc-name{font-size:18px;font-weight:600}
+  .rc-sub{font-size:13px;color:var(--muted);margin-top:4px}
+  .rc-cut{position:relative;height:20px}
+  .rc-cut::before{content:'';position:absolute;left:22px;right:22px;top:50%;border-top:2px dashed var(--line)}
+  .rc-cut i{position:absolute;top:0;width:20px;height:20px;border-radius:50%;background:var(--bg)}
+  .rc-cut i:first-child{left:-10px}.rc-cut i:last-child{right:-10px}
+  .rc-rows{padding:4px 20px 8px}
+  .rc-row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;font-size:14px}
+  .rc-row span{color:var(--muted);white-space:nowrap}
+  .rc-row b{font-weight:500;text-align:right;word-break:break-word}
+  .mono{font-family:ui-monospace,Menlo,monospace;letter-spacing:.5px}
+  .rc-brand{text-align:center;font-size:11px;color:var(--muted);letter-spacing:1px;padding:6px 0 16px}
+  .rc-acts{display:flex;gap:10px;margin-top:14px}
+  .loading-box{padding:50px 0;text-align:center;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:12px}
+  .spin{width:28px;height:28px;border:3px solid #e2e4f0;border-top-color:var(--p2);border-radius:50%;animation:sp .7s linear infinite}
+  .spin.light{width:20px;height:20px;border-color:rgba(255,255,255,.35);border-top-color:#fff}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* ---------- Toast ---------- */
+  .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-180%);background:#181b34;color:#fff;padding:12px 18px;border-radius:14px;font-size:14px;z-index:80;transition:transform .3s;box-shadow:var(--sh);max-width:92%;width:max-content}
+  .toast.show{transform:translate(-50%,0)}
+  .toast.ok{border-left:4px solid var(--mint)}
+  .toast.err{border-left:4px solid var(--red)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===================== หน้าหลัก ===================== -->
+  <section class="page active" id="pg-home">
+    <header class="top">
+      <div class="top-row">
+        <div class="avatar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v8h14v-8"/></svg>
+        </div>
+        <div>
+          <div class="hello" id="hello">สวัสดี</div>
+          <div class="store" id="storeName">ร้านขายของชำ</div>
+        </div>
+        <button class="icon-round" id="syncBtn" onclick="loadProducts(true)" aria-label="อัปเดตข้อมูล">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg>
+        </button>
+      </div>
+      <div class="balance">
+        <div class="bal-label">สินค้าในระบบทั้งหมด</div>
+        <div class="bal-num"><span id="countNum">0</span> <small>รายการ</small></div>
+        <div class="bal-foot"><span id="syncTime">กำลังโหลด...</span><span class="chip-card">PRICE CHECK</span></div>
+      </div>
+    </header>
+
+    <div class="quick">
+      <button class="qa" onclick="openScanner('check')">
+        <div class="qa-ic c1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg></div>
+        สแกนราคา
+      </button>
+      <button class="qa" onclick="pickImage('check')">
+        <div class="qa-ic c2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+        สแกนจากรูป
+      </button>
+      <button class="qa" onclick="go('add')">
+        <div class="qa-ic c3"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+        เพิ่มสินค้า
+      </button>
+      <button class="qa" onclick="go('list')">
+        <div class="qa-ic c4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg></div>
+        รายการสินค้า
+      </button>
+    </div>
+
+    <div class="search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="homeQ" placeholder="บาร์โค้ด หรือชื่อสินค้า" autocomplete="off" enterkeyhint="search">
+      <button onclick="homeSearch()">ค้นหา</button>
+    </div>
+
+    <div class="sec-head"><h3>ตรวจสอบล่าสุด</h3><button onclick="go('history')">ดูทั้งหมด</button></div>
+    <div class="list" id="homeHist"></div>
+  </section>
+
+  <!-- ===================== รายการสินค้า ===================== -->
+  <section class="page" id="pg-list">
+    <div class="phead">
+      <div class="phead-row">
+        <div><h2>รายการสินค้า</h2><p id="listCount">0 รายการ</p></div>
+        <button class="icon-round" onclick="loadProducts(true)" aria-label="อัปเดต">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="search lift">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="listQ" placeholder="ค้นหาชื่อหรือบาร์โค้ด" autocomplete="off">
+    </div>
+    <div class="list" style="margin-top:8px" id="prodList"></div>
+  </section>
+
+  <!-- ===================== ประวัติ ===================== -->
+  <section class="page" id="pg-history">
+    <div class="phead">
+      <div class="phead-row">
+        <div><h2>ประวัติการตรวจสอบ</h2><p>เก็บไว้ในเครื่องนี้ 30 รายการล่าสุด</p></div>
+        <button class="icon-round" onclick="clearHistory()" aria-label="ล้างประวัติ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="list lift" id="histList"></div>
+  </section>
+
+  <!-- ===================== เพิ่มสินค้า ===================== -->
+  <section class="page" id="pg-add">
+    <div class="phead"><h2>เพิ่มสินค้าใหม่</h2><p>ข้อมูลจะบันทึกลง Google Sheets ทันที</p></div>
+    <div class="form lift">
+      <div class="field">
+        <label>บาร์โค้ด</label>
+        <div class="inrow">
+          <input id="aCode" inputmode="numeric" autocomplete="off" placeholder="พิมพ์ หรือกดปุ่มสแกน">
+          <button type="button" class="scan-mini" onclick="openScanner('add')" aria-label="สแกนบาร์โค้ด">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label>ชื่อสินค้า</label>
+        <input id="aName" placeholder="เช่น น้ำดื่ม 600 มล." autocomplete="off">
+      </div>
+      <div class="amount">
+        <label>ราคาขาย</label>
+        <div class="amount-row"><span>฿</span><input type="number" id="aPrice" inputmode="decimal" placeholder="0.00" step="0.01" min="0"></div>
+      </div>
+      <div class="field">
+        <label>หน่วย</label>
+        <input id="aUnit" value="ชิ้น" autocomplete="off">
+        <div class="chips" id="unitChips">
+          <button type="button" class="chip active">ชิ้น</button><button type="button" class="chip">ขวด</button>
+          <button type="button" class="chip">ซอง</button><button type="button" class="chip">กล่อง</button>
+          <button type="button" class="chip">แพ็ค</button><button type="button" class="chip">กก.</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>รหัสพนักงาน (PIN)</label>
+        <input type="password" id="aPin" inputmode="numeric" autocomplete="off" placeholder="••••">
+      </div>
+    </div>
+    <div class="pad"><button class="btn btn-primary" id="saveBtn" onclick="saveProduct()">บันทึกสินค้า</button></div>
+  </section>
+</div>
+
+<!-- ===================== แถบเมนูล่าง ===================== -->
+<nav class="nav">
+  <button class="tab active" data-pg="home" onclick="go('home')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+    <span>หน้าหลัก</span>
+  </button>
+  <button class="tab" data-pg="list" onclick="go('list')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>
+    <span>สินค้า</span>
+  </button>
+  <div class="fab-wrap">
+    <button class="fab" onclick="openScanner('check')" aria-label="สแกน">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg>
+    </button>
+    <span>สแกน</span>
+  </div>
+  <button class="tab" data-pg="history" onclick="go('history')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    <span>ประวัติ</span>
+  </button>
+  <button class="tab" data-pg="add" onclick="go('add')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+    <span>เพิ่มสินค้า</span>
+  </button>
+</nav>
+
+<!-- ===================== หน้าสแกน ===================== -->
+<div class="scanner" id="scanner">
+  <div class="sc-video"><div id="reader"></div></div>
+  <div class="sc-mask"><div class="sc-frame"><i></i><i></i><i></i><i></i><div class="laser"></div></div></div>
+  <div class="sc-top">
+    <button class="sc-btn" onclick="closeScanner()" aria-label="ย้อนกลับ">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h3 id="scTitle">สแกนเช็คราคา</h3>
+    <button class="sc-btn" id="torchBtn" onclick="toggleTorch()" style="visibility:hidden" aria-label="ไฟฉาย">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
+    </button>
+  </div>
+  <div class="sc-hint" id="scHint">วางบาร์โค้ดให้อยู่ในกรอบ</div>
+  <div class="sc-bottom">
+    <button class="btn" onclick="pickImage(scanMode)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+      เลือกรูป
+    </button>
+    <button class="btn" onclick="typeManually()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+      พิมพ์รหัส
+    </button>
+  </div>
+</div>
+<input type="file" id="fileInput" accept="image/*" hidden>
+
+<!-- ===================== สลิปผลลัพธ์ ===================== -->
+<div class="overlay" id="slipBg" onclick="closeSlip()"></div>
+<div class="slip" id="slip"><div class="grip"></div><div id="slipBody"></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* =========================================================
+     ตั้งค่า (แก้ 2 บรรทัดนี้)
+     ========================================================= */
+  const API_URL    = 'วาง_URL_เว็บแอป_ที่ลงท้ายด้วย_/exec_ตรงนี้';
+  const STORE_NAME = 'ร้านขายของชำ';
+
+  /* ---------- เครื่องมือ ---------- */
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmt = n => { n = Number(n) || 0; return n.toLocaleString('th-TH', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
+  const nowTime = () => new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  const dateTime = () => new Date().toLocaleString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const sv = d => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const ICON = {
+    bag:   sv('<path d="M6 7h12l1 13H5z"/><path d="M9 7a3 3 0 0 1 6 0"/>'),
+    check: sv('<path d="M20 6 9 17l-5-5"/>'),
+    x:     sv('<path d="M18 6 6 18M6 6l12 12"/>')
+  };
+
+  let products = [];
+  const map = new Map();
+
+  /* ---------- API ---------- */
+  async function apiGet(params) {
+    const r = await fetch(API_URL + '?' + new URLSearchParams(params));
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }
+  async function apiPost(body) {
+    const r = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }
+
+  /* ---------- โหลดข้อมูลสินค้า ---------- */
+  async function loadProducts(manual) {
+    if (!API_URL.startsWith('https://')) {
+      $('syncTime').textContent = 'ยังไม่ได้ตั้งค่า API_URL';
+      return toast('กรุณาใส่ API_URL ในไฟล์ index.html', 'err');
+    }
+    $('syncBtn').classList.add('spinning');
+    $('syncTime').textContent = 'กำลังซิงก์ข้อมูล...';
+    try {
+      const res = await apiGet({ action: 'list' });
+      if (res.status !== 'success') throw new Error(res.message || 'ผิดพลาด');
+      setProducts(res.items);
+      localStorage.setItem('pc_cache', JSON.stringify(res.items));
+      $('syncTime').textContent = 'อัปเดตล่าสุด ' + nowTime() + ' น.';
+      if (manual) toast('อัปเดตข้อมูลเรียบร้อย', 'ok');
+    } catch (e) {
+      $('syncTime').textContent = 'ออฟไลน์ · ใช้ข้อมูลที่บันทึกไว้';
+      toast('เชื่อมต่อไม่ได้: ' + e.message, 'err');
+    } finally {
+      $('syncBtn').classList.remove('spinning');
+    }
+  }
+
+  function setProducts(items) {
+    products = items;
+    map.clear();
+    items.forEach(p => map.set(String(p.barcode), p));
+    $('countNum').textContent = items.length.toLocaleString('th-TH');
+    renderList();
+  }
+
+  function upsert(p) {
+    const item = { barcode: String(p.barcode), name: p.name, price: Number(p.price), unit: p.unit || 'ชิ้น' };
+    const i = products.findIndex(x => String(x.barcode) === item.barcode);
+    if (i >= 0) products[i] = item; else products.unshift(item);
+    setProducts(products);
+    localStorage.setItem('pc_cache', JSON.stringify(products));
+  }
+
+  /* ---------- ค้นหาราคา ---------- */
+  let slipCode = null;
+
+  async function lookup(code) {
+    code = String(code || '').trim();
+    if (!code) return toast('กรุณากรอกหรือสแกนบาร์โค้ด', 'err');
+
+    const hit = map.get(code);
+    if (hit) {                      // เจอในเครื่อง แสดงทันที แล้วเช็กราคาล่าสุดจากชีตอีกรอบ
+      showSlip('found', hit);
+      addHistory(hit);
+      verify(code, hit);
+      return;
+    }
+    showSlip('loading', { barcode: code });
+    try {
+      const res = await apiGet({ action: 'get', barcode: code });
+      if (slipCode !== code) return;
+      if (res.status === 'success') { upsert(res); showSlip('found', res); addHistory(res); }
+      else showSlip('notfound', { barcode: code });
+    } catch (e) {
+      closeSlip();
+      toast('เชื่อมต่อไม่ได้: ' + e.message, 'err');
+    }
+  }
+
+  async function verify(code, old) {
+    try {
+      const res = await apiGet({ action: 'get', barcode: code });
+      if (res.status === 'success' && (res.price !== old.price || res.name !== old.name || res.unit !== old.unit)) {
+        upsert(res);
+        addHistory(res);
+        if (slipCode === code && $('slip').classList.contains('open')) showSlip('found', res);
+      }
+    } catch (e) {}
+  }
+
+  function homeSearch() {
+    const v = $('homeQ').value.trim();
+    if (!v) return toast('กรุณาพิมพ์บาร์โค้ดหรือชื่อสินค้า', 'err');
+    $('homeQ').blur();
+    if (map.has(v) || /^\d+$/.test(v)) return lookup(v);
+    $('listQ').value = v;
+    renderList();
+    go('list');
+  }
+  $('homeQ').addEventListener('keydown', e => { if (e.key === 'Enter') homeSearch(); });
+
+  /* ---------- สลิป ---------- */
+  function showSlip(state, p) {
+    slipCode = p.barcode;
+    let html = '';
+    if (state === 'loading') {
+      html = `<div class="receipt"><div class="loading-box"><div class="spin"></div><div>กำลังค้นหาสินค้า...</div></div></div>`;
+    } else if (state === 'notfound') {
+      html = `
+        <div class="receipt"><div class="rc-top">
+          <div class="rc-ic bad">${ICON.x}</div>
+          <div class="rc-name">ไม่พบสินค้าในระบบ</div>
+          <div class="rc-sub mono">บาร์โค้ด ${esc(p.barcode)}</div>
+        </div></div>
+        <div class="rc-acts">
+          <button class="btn btn-light" onclick="closeSlip();openScanner('check')">สแกนใหม่</button>
+          <button class="btn btn-primary" onclick="addFromSlip()">เพิ่มสินค้านี้</button>
+        </div>`;
+    } else {
+      const saved = state === 'saved';
+      html = `
+        <div class="receipt">
+          <div class="rc-top">
+            <div class="rc-ic ok">${ICON.check}</div>
+            <div class="rc-title">${saved ? 'บันทึกสินค้าสำเร็จ' : 'ราคาสินค้า'}</div>
+            <div class="rc-price"><small>฿</small>${fmt(p.price)}</div>
+            <div class="rc-unit">ต่อ ${esc(p.unit)}</div>
+          </div>
+          <div class="rc-cut"><i></i><i></i></div>
+          <div class="rc-rows">
+            <div class="rc-row"><span>ชื่อสินค้า</span><b>${esc(p.name)}</b></div>
+            <div class="rc-row"><span>บาร์โค้ด</span><b class="mono">${esc(p.barcode)}</b></div>
+            <div class="rc-row"><span>หน่วย</span><b>${esc(p.unit)}</b></div>
+            <div class="rc-row"><span>วันเวลา</span><b>${dateTime()}</b></div>
+          </div>
+          <div class="rc-brand">${esc(STORE_NAME)} · PRICE CHECK</div>
+        </div>
+        <div class="rc-acts">
+          <button class="btn btn-light" onclick="closeSlip()">ปิด</button>
+          <button class="btn btn-primary" onclick="closeSlip();openScanner('check')">สแกนต่อ</button>
+        </div>`;
+    }
+    $('slipBody').innerHTML = html;
+    $('slipBg').classList.add('open');
+    $('slip').classList.add('open');
+  }
+
+  function closeSlip() {
+    $('slipBg').classList.remove('open');
+    $('slip').classList.remove('open');
+    slipCode = null;
+  }
+
+  function addFromSlip() {
+    const code = slipCode;
+    closeSlip();
+    $('aCode').value = code || '';
+    go('add');
+    setTimeout(() => $('aName').focus(), 300);
+  }
+
+  /* ---------- สแกนเนอร์ ---------- */
+  let qr = null, scanMode = 'check', scanLock = false, torchOn = false;
+
+  function getQr() {
+    if (!qr) {
+      const F = Html5QrcodeSupportedFormats;
+      qr = new Html5Qrcode('reader', {
+        verbose: false,
+        formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128, F.CODE_39, F.ITF, F.QR_CODE],
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+      });
+    }
+    return qr;
+  }
+
+  async function openScanner(mode) {
+    scanMode = mode;
+    scanLock = false;
+    if (qr && qr.isScanning) return;
+    $('scTitle').textContent = mode === 'add' ? 'สแกนสินค้าใหม่' : 'สแกนเช็คราคา';
+    $('scanner').classList.add('open');
+    $('scHint').textContent = 'กำลังเปิดกล้อง...';
+    $('torchBtn').style.visibility = 'hidden';
+    try {
+      await getQr().start({ facingMode: 'environment' }, { fps: 15, disableFlip: true }, onScan, () => {});
+      $('scHint').textContent = 'วางบาร์โค้ดให้อยู่ในกรอบ';
+      setupTorch();
+    } catch (e) {
+      $('scHint').textContent = 'เปิดกล้องไม่ได้ · กรุณาอนุญาตการใช้กล้อง หรือกด "เลือกรูป"';
+    }
+  }
+
+  async function closeScanner() {
+    if (qr && qr.isScanning) { try { await qr.stop(); } catch (e) {} }
+    torchOn = false;
+    $('torchBtn').classList.remove('on');
+    $('scanner').classList.remove('open');
+  }
+
+  function onScan(text) {
+    if (scanLock) return;
+    scanLock = true;
+    beep();
+    closeScanner().then(() => handleCode(text));
+  }
+
+  function handleCode(code) {
+    if (scanMode === 'add') fillAdd(code);
+    else lookup(code);
+  }
+
+  function setupTorch() {
+    try {
+      const t = qr.getRunningTrackCameraCapabilities().torchFeature();
+      if (t.isSupported()) $('torchBtn').style.visibility = 'visible';
+    } catch (e) {}
+  }
+
+  async function toggleTorch() {
+    try {
+      torchOn = !torchOn;
+      await qr.getRunningTrackCameraCapabilities().torchFeature().apply(torchOn);
+      $('torchBtn').classList.toggle('on', torchOn);
+    } catch (e) {
+      toast('เครื่องนี้ใช้ไฟฉายผ่านเว็บไม่ได้', 'err');
+    }
+  }
+
+  function typeManually() {
+    const m = scanMode;
+    closeScanner();
+    if (m === 'add') setTimeout(() => $('aCode').focus(), 300);
+    else { go('home'); setTimeout(() => $('homeQ').focus(), 300); }
+  }
+
+  function pickImage(mode) {
+    scanMode = mode;
+    $('fileInput').click();
+  }
+
+  $('fileInput').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (qr && qr.isScanning) { try { await qr.stop(); } catch (err) {} }
+    $('scanner').classList.remove('open');
+    try {
+      const text = await getQr().scanFile(file, false);
+      beep();
+      handleCode(text);
+    } catch (err) {
+      toast('อ่านบาร์โค้ดจากรูปไม่ได้ ลองถ่ายให้ใกล้และชัดขึ้น', 'err');
+    }
+  });
+
+  function beep() {
+    try { navigator.vibrate && navigator.vibrate(80); } catch (e) {}
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = 1200; o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      o.start(); o.stop(ctx.currentTime + 0.12);
+    } catch (e) {}
+  }
+
+  /* ---------- เพิ่มสินค้า ---------- */
+  function fillAdd(code) {
+    $('aCode').value = code;
+    go('add');
+    if (map.has(code)) toast('บาร์โค้ดนี้มีในระบบแล้ว: ' + map.get(code).name, 'err');
+    else { toast('อ่านบาร์โค้ดสำเร็จ', 'ok'); setTimeout(() => $('aName').focus(), 300); }
+  }
+
+  function setUnit(u) {
+    $('aUnit').value = u;
+    document.querySelectorAll('#unitChips .chip').forEach(c => c.classList.toggle('active', c.textContent === u));
+  }
+  document.querySelectorAll('#unitChips .chip').forEach(c => c.onclick = () => setUnit(c.textContent));
+
+  async function saveProduct() {
+    const d = {
+      action: 'add',
+      barcode: $('aCode').value.trim(),
+      name: $('aName').value.trim(),
+      price: $('aPrice').value.trim(),
+      unit: $('aUnit').value.trim() || 'ชิ้น',
+      pin: $('aPin').value.trim()
+    };
+    if (!d.barcode) return toast('กรุณาใส่บาร์โค้ด', 'err');
+    if (!d.name) return toast('กรุณาใส่ชื่อสินค้า', 'err');
+    if (d.price === '' || isNaN(d.price) || Number(d.price) < 0) return toast('กรุณาใส่ราคาให้ถูกต้อง', 'err');
+    if (map.has(d.barcode)) return toast('บาร์โค้ดนี้มีในระบบแล้ว', 'err');
+
+    const btn = $('saveBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spin light"></div> กำลังบันทึก...';
+    try {
+      const res = await apiPost(d);
+      if (res.status === 'success') {
+        localStorage.setItem('pc_pin', d.pin);
+        const p = { barcode: d.barcode, name: d.name, price: Number(d.price), unit: d.unit };
+        upsert(p);
+        addHistory(p);
+        $('aCode').value = ''; $('aName').value = ''; $('aPrice').value = ''; setUnit('ชิ้น');
+        showSlip('saved', p);
+      } else if (res.status === 'duplicate') toast('บาร์โค้ดนี้มีในระบบแล้ว', 'err');
+      else if (res.status === 'unauthorized') toast('รหัส PIN ไม่ถูกต้อง', 'err');
+      else toast(res.message || 'ข้อมูลไม่ถูกต้อง', 'err');
+    } catch (e) {
+      toast('บันทึกไม่สำเร็จ: ' + e.message, 'err');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'บันทึกสินค้า';
+    }
+  }
+
+  /* ---------- รายการสินค้า / ประวัติ ---------- */
+  const txHTML = (p, sub) => `
+    <div class="tx" data-code="${esc(p.barcode)}">
+      <div class="tx-ic">${ICON.bag}</div>
+      <div class="tx-mid"><div class="tx-name">${esc(p.name)}</div><div class="tx-sub">${esc(sub)}</div></div>
+      <div class="tx-amt">฿${fmt(p.price)}</div>
+    </div>`;
+  const emptyHTML = t => `<div class="empty">${esc(t)}</div>`;
+
+  function renderList() {
+    const q = $('listQ').value.trim().toLowerCase();
+    const items = q ? products.filter(p => String(p.name).toLowerCase().includes(q) || String(p.barcode).includes(q)) : products;
+    $('listCount').textContent = items.length.toLocaleString('th-TH') + ' รายการ';
+    $('prodList').innerHTML = items.length
+      ? items.slice(0, 300).map(p => txHTML(p, p.barcode + ' · ' + p.unit)).join('')
+      : emptyHTML(q ? 'ไม่พบสินค้าที่ค้นหา' : 'ยังไม่มีสินค้า');
+  }
+  $('listQ').addEventListener('input', renderList);
+
+  function getHist() { try { return JSON.parse(localStorage.getItem('pc_hist')) || []; } catch (e) { return []; } }
+
+  function addHistory(p) {
+    const code = String(p.barcode);
+    const h = getHist().filter(x => x.barcode !== code);
+    h.unshift({ barcode: code, name: p.name, price: Number(p.price), unit: p.unit, t: Date.now() });
+    localStorage.setItem('pc_hist', JSON.stringify(h.slice(0, 30)));
+    renderHistory();
+  }
+
+  function clearHistory() {
+    localStorage.removeItem('pc_hist');
+    renderHistory();
+    toast('ล้างประวัติแล้ว', 'ok');
+  }
+
+  function ago(t) {
+    const m = Math.floor((Date.now() - t) / 60000);
+    if (m < 1) return 'เมื่อสักครู่';
+    if (m < 60) return m + ' นาทีที่แล้ว';
+    const hr = Math.floor(m / 60);
+    if (hr < 24) return hr + ' ชั่วโมงที่แล้ว';
+    return new Date(t).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+  }
+
+  function renderHistory() {
+    const h = getHist();
+    $('homeHist').innerHTML = h.length ? h.slice(0, 5).map(x => txHTML(x, ago(x.t))).join('') : emptyHTML('ยังไม่มีการตรวจสอบราคา');
+    $('histList').innerHTML = h.length ? h.map(x => txHTML(x, ago(x.t))).join('') : emptyHTML('ยังไม่มีประวัติ');
+  }
+
+  document.addEventListener('click', e => {
+    const el = e.target.closest('.tx[data-code]');
+    if (el) lookup(el.dataset.code);
+  });
+
+  /* ---------- เปลี่ยนหน้า ---------- */
+  function go(pg) {
+    document.querySelectorAll('.page').forEach(s => s.classList.toggle('active', s.id === 'pg-' + pg));
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.pg === pg));
+    window.scrollTo({ top: 0 });
+  }
+
+  /* ---------- Toast ---------- */
+  let toastTimer;
+  function toast(msg, type) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  /* ---------- เริ่มต้น ---------- */
+  (function init() {
+    $('storeName').textContent = STORE_NAME;
+    const h = new Date().getHours();
+    $('hello').textContent = h < 12 ? 'สวัสดีตอนเช้า' : h < 17 ? 'สวัสดีตอนบ่าย' : 'สวัสดีตอนเย็น';
+    $('aPin').value = localStorage.getItem('pc_pin') || '';
+    try { const c = JSON.parse(localStorage.getItem('pc_cache') || '[]'); if (c.length) setProducts(c); } catch (e) {}
+    renderList();
+    renderHistory();
+    loadProducts();
+  })();
+</script>
+</body>
+</html>
