@@ -9,6 +9,7 @@
 <title>เช็คราคาสินค้า</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
   :root{
     --p1:#1e1259;--p2:#4a2fbd;--p3:#7b5cf0;--mint:#14c8a4;
@@ -112,29 +113,6 @@
   .fab:active{transform:scale(.94)}
   .fab-wrap span{color:var(--p2);font-weight:500}
 
-  /* หน้าสแกนใหม่ (Native Scanner) */
-  .scanner{position:fixed;inset:0;background:#000;z-index:60;display:none;flex-direction:column}
-  .scanner.open{display:flex}
-  .sc-video-wrap{position:relative;flex:1;overflow:hidden;background:#000}
-  #scVideo{width:100%;height:100%;object-fit:cover}
-  .sc-mask{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
-  .sc-frame{position:relative;width:80%;max-width:320px;height:120px;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.65)}
-  .sc-frame i{position:absolute;width:28px;height:28px;border:0 solid var(--mint)}
-  .sc-frame i:nth-child(1){top:0;left:0;border-width:4px 0 0 4px;border-top-left-radius:16px}
-  .sc-frame i:nth-child(2){top:0;right:0;border-width:4px 4px 0 0;border-top-right-radius:16px}
-  .sc-frame i:nth-child(3){bottom:0;left:0;border-width:0 0 4px 4px;border-bottom-left-radius:16px}
-  .sc-frame i:nth-child(4){bottom:0;right:0;border-width:0 4px 4px 0;border-bottom-right-radius:16px}
-  .laser{position:absolute;left:4%;right:4%;top:50%;height:2px;background:linear-gradient(90deg,transparent,var(--mint),transparent);box-shadow:0 0 12px var(--mint);animation:laser 1.2s ease-in-out infinite}
-  @keyframes laser{0%,100%{transform:translateY(-30px)}50%{transform:translateY(30px)}}
-  
-  .sc-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;color:#fff;z-index:2}
-  .sc-top h3{font-size:16px;font-weight:500}
-  .sc-btn{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;display:grid;place-items:center}
-  .sc-btn.on{background:#fde047;color:#111}
-  .sc-hint{position:absolute;left:0;right:0;bottom:80px;text-align:center;color:#fff;font-size:14px;padding:0 24px;z-index:2;text-shadow:0 2px 4px rgba(0,0,0,.8)}
-  .sc-bottom{position:absolute;left:0;right:0;bottom:0;padding:16px 20px calc(24px + env(safe-area-inset-bottom));display:flex;gap:10px;z-index:2;background:linear-gradient(transparent,rgba(0,0,0,.8))}
-  .sc-bottom .btn{background:rgba(255,255,255,.2);color:#fff;font-weight:500;font-size:15px}
-
   /* สลิป */
   .overlay{position:fixed;inset:0;background:rgba(10,8,30,.55);opacity:0;pointer-events:none;transition:.25s;z-index:40}
   .overlay.open{opacity:1;pointer-events:auto}
@@ -202,13 +180,13 @@
     </header>
 
     <div class="quick">
-      <button class="qa" onclick="openScanner('check')">
+      <button class="qa" onclick="triggerSnap('check')">
         <div class="qa-ic c1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg></div>
-        สแกนราคา
+        ถ่ายสแกนราคา
       </button>
-      <button class="qa" onclick="pickImage('check')">
+      <button class="qa" onclick="triggerSnap('check')">
         <div class="qa-ic c2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
-        สแกนจากรูป
+        ถ่ายรูปสินค้า
       </button>
       <button class="qa" onclick="go('add')">
         <div class="qa-ic c3"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
@@ -267,9 +245,9 @@
       <div class="field">
         <label>บาร์โค้ด</label>
         <div class="inrow">
-          <input id="aCode" inputmode="numeric" autocomplete="off" placeholder="พิมพ์ หรือกดปุ่มสแกน">
-          <button type="button" class="scan-mini" onclick="openScanner('add')" aria-label="สแกนบาร์โค้ด">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg>
+          <input id="aCode" inputmode="numeric" autocomplete="off" placeholder="พิมพ์ หรือกดปุ่มถ่ายรูป">
+          <button type="button" class="scan-mini" onclick="triggerSnap('add')" aria-label="ถ่ายรูปบาร์โค้ด">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           </button>
         </div>
       </div>
@@ -310,10 +288,10 @@
     <span>สินค้า</span>
   </button>
   <div class="fab-wrap">
-    <button class="fab" onclick="openScanner('check')" aria-label="สแกน">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg>
+    <button class="fab" onclick="triggerSnap('check')" aria-label="ถ่ายรูปสแกน">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
     </button>
-    <span>สแกน</span>
+    <span>ถ่ายสแกน</span>
   </div>
   <button class="tab" data-pg="history" onclick="go('history')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
@@ -325,34 +303,8 @@
   </button>
 </nav>
 
-<!-- หน้าสแกนแบบใหม่ (Native BarcodeDetector) -->
-<div class="scanner" id="scanner">
-  <div class="sc-video-wrap">
-    <video id="scVideo" autoplay playsinline muted></video>
-    <div class="sc-mask"><div class="sc-frame"><i></i><i></i><i></i><i></i><div class="laser"></div></div></div>
-  </div>
-  <div class="sc-top">
-    <button class="sc-btn" onclick="closeScanner()" aria-label="ย้อนกลับ">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <h3 id="scTitle">สแกนเช็คราคา</h3>
-    <button class="sc-btn" id="torchBtn" onclick="toggleTorch()" style="visibility:hidden" aria-label="ไฟฉาย">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
-    </button>
-  </div>
-  <div class="sc-hint" id="scHint">วางบาร์โค้ดให้อยู่ในกรอบสีเขียว</div>
-  <div class="sc-bottom">
-    <button class="btn" onclick="pickImage(scanMode)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
-      เลือกรูป
-    </button>
-    <button class="btn" onclick="typeManually()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
-      พิมพ์รหัส
-    </button>
-  </div>
-</div>
-<input type="file" id="fileInput" accept="image/*" hidden>
+<!-- ซ่อน input สำหรับถ่ายภาพกล้องมือถือ -->
+<input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
 
 <!-- สลิปผลลัพธ์ -->
 <div class="overlay" id="slipBg" onclick="closeSlip()"></div>
@@ -378,6 +330,7 @@
 
   let products = [];
   const map = new Map();
+  let currentSnapMode = 'check';
 
   /* API */
   async function apiGet(params) {
@@ -436,7 +389,7 @@
 
   async function lookup(code) {
     code = String(code || '').trim();
-    if (!code) return toast('กรุณากรอกหรือสแกนบาร์โค้ด', 'err');
+    if (!code) return toast('กรุณากรอกหรือถ่ายบาร์โค้ด', 'err');
 
     const hit = map.get(code);
     if (hit) {
@@ -493,7 +446,7 @@
           <div class="rc-sub mono">บาร์โค้ด ${esc(p.barcode)}</div>
         </div></div>
         <div class="rc-acts">
-          <button class="btn btn-light" onclick="closeSlip();openScanner('check')">สแกนใหม่</button>
+          <button class="btn btn-light" onclick="closeSlip();triggerSnap('check')">ถ่ายใหม่</button>
           <button class="btn btn-primary" onclick="addFromSlip()">เพิ่มสินค้านี้</button>
         </div>`;
     } else {
@@ -517,7 +470,7 @@
         </div>
         <div class="rc-acts">
           <button class="btn btn-light" onclick="closeSlip()">ปิด</button>
-          <button class="btn btn-primary" onclick="closeSlip();openScanner('check')">สแกนต่อ</button>
+          <button class="btn btn-primary" onclick="closeSlip();triggerSnap('check')">ถ่ายต่อ</button>
         </div>`;
     }
     $('slipBody').innerHTML = html;
@@ -540,136 +493,39 @@
   }
 
   /* =========================================================
-     ระบบสแกนความเร็วสูง (Native BarcodeDetector API)
+     ระบบถ่ายภาพเพื่ออ่านบาร์โค้ด (Snap & Read)
      ========================================================= */
-  let mediaStream = null, scanTimer = null, scanMode = 'check', detector = null, isProcessing = false, trackCap = null;
-
-  async function openScanner(mode) {
-    scanMode = mode;
-    isProcessing = false;
-    $('scTitle').textContent = mode === 'add' ? 'สแกนสินค้าใหม่' : 'สแกนเช็คราคา';
-    $('scanner').classList.add('open');
-    $('scHint').textContent = 'กำลังเปิดกล้อง...';
-    $('torchBtn').style.visibility = 'hidden';
-
-    try {
-      if (!('BarcodeDetector' in window)) {
-        throw new Error('เบราว์เซอร์นี้ไม่รองรับระบบสแกนอัจฉริยะ แนะนำให้ใช้ Google Chrome หรือ Safari');
-      }
-      if (!detector) {
-        detector = new BarcodeDetector({
-          formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'itf']
-        });
-      }
-
-      mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-      });
-
-      const video = $('scVideo');
-      video.srcObject = mediaStream;
-      await video.play();
-
-      const track = mediaStream.getVideoTracks()[0];
-      trackCap = track.getCapabilities ? track.getCapabilities() : null;
-      if (trackCap && trackCap.torch) $('torchBtn').style.visibility = 'visible';
-
-      $('scHint').textContent = 'วางบาร์โค้ดให้อยู่ในกรอบ';
-      startDecoding(video);
-    } catch (e) {
-      $('scHint').textContent = 'เปิดกล้องไม่ได้: ' + e.message;
-      toast('เปิดกล้องไม่ได้ กรุณาใช้ปุ่ม "เลือกรูป"', 'err');
-    }
+  function triggerSnap(mode) {
+    currentSnapMode = mode;
+    $('cameraInput').click();
   }
 
-  function startDecoding(video) {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-    scanTimer = setInterval(async () => {
-      if (isProcessing || video.paused || video.ended) return;
-      if (video.videoWidth === 0 || video.videoHeight === 0) return;
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      try {
-        const codes = await detector.detect(canvas);
-        if (codes.length > 0 && !isProcessing) {
-          isProcessing = true;
-          beep();
-          const code = codes[0].rawValue;
-          closeScanner();
-          handleCode(code);
-        }
-      } catch (err) {}
-    }, 120); // ตรวจจับทุกๆ 0.12 วินาที แม่นยำและไม่กินเครื่อง
-  }
-
-  async function closeScanner() {
-    clearInterval(scanTimer);
-    if (mediaStream) {
-      mediaStream.getTracks().forEach(t => t.stop());
-      mediaStream = null;
-    }
-    const video = $('scVideo');
-    if (video.srcObject) video.srcObject = null;
-    $('torchBtn').classList.remove('on');
-    $('scanner').classList.remove('open');
-  }
-
-  function handleCode(code) {
-    if (scanMode === 'add') fillAdd(code);
-    else lookup(code);
-  }
-
-  async function toggleTorch() {
-    if (!mediaStream) return;
-    try {
-      const track = mediaStream.getVideoTracks()[0];
-      const settings = track.getSettings();
-      const newTorch = !settings.torch;
-      await track.applyConstraints({ advanced: [{ torch: newTorch }] });
-      $('torchBtn').classList.toggle('on', newTorch);
-    } catch (e) {
-      toast('เปิดไฟฉายไม่ได้', 'err');
-    }
-  }
-
-  function typeManually() {
-    const m = scanMode;
-    closeScanner();
-    if (m === 'add') setTimeout(() => $('aCode').focus(), 300);
-    else { go('home'); setTimeout(() => $('homeQ').focus(), 300); }
-  }
-
-  function pickImage(mode) {
-    scanMode = mode;
-    $('fileInput').click();
-  }
-
-  /* รองรับสแกนจากรูปภาพผ่าน BarcodeDetector เช่นกัน */
-  $('fileInput').addEventListener('change', async e => {
+  $('cameraInput').addEventListener('change', async e => {
     const file = e.target.files[0];
     e.target.value = '';
     if (!file) return;
-    closeScanner();
+
+    toast('กำลังอ่านบาร์โค้ดจากภาพ...', 'ok');
     try {
-      if (!('BarcodeDetector' in window)) throw new Error('ไม่รองรับการอ่านภาพ');
-      const img = document.createElement('img');
-      img.src = URL.createObjectURL(file);
-      await img.decode();
-      const det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39'] });
-      const codes = await det.detect(img);
-      if (codes.length > 0) {
-        beep();
-        handleCode(codes[0].rawValue);
+      const html5QrCode = new Html5Qrcode("reader-temp", { verbose: false });
+      // สร้างตัวอ่านชั่วคราว
+      let div = $('reader-temp');
+      if(!div) {
+        div = document.createElement('div');
+        div.id = 'reader-temp';
+        div.style.display = 'none';
+        document.body.appendChild(div);
+      }
+
+      const decodedText = await html5QrCode.scanFile(file, true);
+      beep();
+      if (currentSnapMode === 'add') {
+        fillAdd(decodedText);
       } else {
-        toast('อ่านบาร์โค้ดจากรูปไม่ได้ ลองถ่ายให้ใกล้ขึ้น', 'err');
+        lookup(decodedText);
       }
     } catch (err) {
-      toast('อ่านบาร์โค้ดจากรูปไม่ได้', 'err');
+      toast('อ่านบาร์โค้ดไม่เจอ ลองถ่ายให้ใกล้และชัดขึ้น', 'err');
     }
   });
 
@@ -812,7 +668,7 @@
     $('storeName').textContent = STORE_NAME;
     const h = new Date().getHours();
     $('hello').textContent = h < 12 ? 'สวัสดีตอนเช้า' : h < 17 ? 'สวัสดีตอนบ่าย' : 'สวัสดีตอนเย็น';
-    $('aPin').value = localStorage.getItem('pc_pin') || '';
+    $('aPin').value = localStorage.getItem('pc_pin'] || '';
     try { const c = JSON.parse(localStorage.getItem('pc_cache') || '[]'); if (c.length) setProducts(c); } catch (e) {}
     renderList();
     renderHistory();
