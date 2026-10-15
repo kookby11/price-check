@@ -181,6 +181,12 @@
   .cs-acts{display:flex;gap:10px}
   .cs-acts .btn{height:50px;font-size:15px}
   .btn-light.danger{color:var(--red)}
+  .cart-empty{text-align:center;padding:44px 20px 40px;color:var(--muted);font-size:13px}
+  .cart-empty .ce-ic{width:84px;height:84px;border-radius:50%;background:#f1edff;color:var(--p2);display:grid;place-items:center;margin:0 auto 14px}
+  .cart-empty b{display:block;color:var(--ink);font-size:16px;font-weight:600;margin-bottom:4px}
+  .ph-total{margin-top:14px;font-size:38px;font-weight:600;line-height:1.1}
+  .ph-total small{font-size:16px;font-weight:400;opacity:.8;margin-right:6px}
+  .search .scan-btn{width:44px;padding:0;display:grid;place-items:center;background:linear-gradient(135deg,var(--p2),var(--p3))}
   .ci{display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid var(--line)}
   .ci:last-child{border-bottom:0}
   .ci-main{flex:1;min-width:0}
@@ -226,9 +232,9 @@
         <div class="qa-ic c1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg></div>
         สแกนราคา
       </button>
-      <button class="qa" onclick="openScanner('cart')">
+      <button class="qa" onclick="go('cart')">
         <div class="qa-ic c5"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11l2-8H6"/></svg></div>
-        สแกนเข้าตะกร้า
+        ตะกร้า
       </button>
       <button class="qa" onclick="pickImage('check')">
         <div class="qa-ic c2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
@@ -286,31 +292,28 @@
 
   <!-- ตะกร้า -->
   <section class="page" id="pg-cart">
-    <div class="phead">
+    <div class="phead" style="padding-bottom:64px">
       <div class="phead-row">
         <div><h2>ตะกร้าสินค้า</h2><p id="cartInfo">0 รายการ · 0 ชิ้น</p></div>
-      </div>
-    </div>
-    <div class="cart-sum lift">
-      <div class="cs-label">ยอดรวมทั้งหมด</div>
-      <div class="cs-total"><small>฿</small><span id="cartTotal">0</span></div>
-      <div class="cs-acts">
-        <button class="btn btn-light danger" onclick="clearCart()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
-          เคลียร์ทั้งหมด
-        </button>
-        <button class="btn btn-primary" onclick="openScanner('cart')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg>
-          สแกนเพิ่ม
+        <button class="icon-round" onclick="clearCart()" aria-label="เคลียร์ตะกร้า">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
         </button>
       </div>
+      <div class="ph-total"><small>ยอดรวม ฿</small><span id="cartTotal">0</span></div>
     </div>
-    <div class="search" style="margin-top:14px">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="cartQ" placeholder="พิมพ์บาร์โค้ด หรือชื่อสินค้า" autocomplete="off" enterkeyhint="done">
-      <button onclick="cartAddManual()">เพิ่ม</button>
+    <div class="pad lift">
+      <button class="btn btn-primary" onclick="openScanner('cart')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M14 8v8M17 8v8"/></svg>
+        สแกนเพิ่มสินค้า
+      </button>
     </div>
     <div class="list" id="cartList"></div>
+    <div class="pad" id="cartClearWrap">
+      <button class="btn btn-light danger" onclick="clearCart()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+        เคลียร์รายการสินค้าทั้งหมด
+      </button>
+    </div>
   </section>
 
   <!-- เพิ่มสินค้า -->
@@ -717,7 +720,7 @@
     const m = scanMode;
     closeScanner();
     if (m === 'add') setTimeout(() => $('aCode').focus(), 300);
-    else if (m === 'cart') { go('cart'); setTimeout(() => $('cartQ').focus(), 300); }
+    else if (m === 'cart') { go('cart'); setTimeout(manualCartAdd, 300); }
     else { go('home'); setTimeout(() => $('homeQ').focus(), 300); }
   }
 
@@ -907,16 +910,10 @@
     else toast('เพิ่มในตะกร้า: ' + p.name, 'ok');
   }
 
-  function cartAddManual() {
-    const v = $('cartQ').value.trim();
-    if (!v) return toast('กรุณาพิมพ์บาร์โค้ดหรือชื่อสินค้า', 'err');
-    if (map.has(v) || /^\d+$/.test(v)) { $('cartQ').value = ''; return addToCartByCode(v); }
-    const q = v.toLowerCase();
-    const m = products.filter(p => String(p.name).toLowerCase().includes(q));
-    if (m.length === 1) { $('cartQ').value = ''; return addToCartByCode(m[0].barcode); }
-    toast(m.length ? 'พบ ' + m.length + ' รายการ ระบุชื่อให้เฉพาะเจาะจงขึ้น' : 'ไม่พบสินค้าที่ค้นหา', 'err');
+  function manualCartAdd() {
+    const v = prompt('พิมพ์บาร์โค้ดสินค้า');
+    if (v && v.trim()) addToCartByCode(v.trim());
   }
-  $('cartQ').addEventListener('keydown', e => { if (e.key === 'Enter') cartAddManual(); });
 
   function clearCart() {
     if (!cart.length) return toast('ตะกร้าว่างอยู่แล้ว', 'err');
@@ -933,12 +930,14 @@
     const total = cartTotal(), qty = cartQty();
     $('cartTotal').textContent = fmt(total);
     $('cartInfo').textContent = cart.length + ' รายการ · ' + qty + ' ชิ้น';
+    $('cartClearWrap').style.display = cart.length ? '' : 'none';
     $('scCartInfo').textContent = qty + ' ชิ้น · ฿' + fmt(total);
     const b = $('navBadge');
     b.textContent = qty > 99 ? '99+' : qty;
     b.hidden = qty === 0;
     $('cartList').innerHTML = cart.length ? cart.map(i => `
       <div class="ci" data-code="${esc(i.barcode)}">
+        <div class="tx-ic">${ICON.bag}</div>
         <div class="ci-main">
           <div class="tx-name">${esc(i.name)}</div>
           <div class="tx-sub">฿${fmt(i.price)} / ${esc(i.unit)}</div>
@@ -948,7 +947,7 @@
           <div class="qty"><button data-act="dec" aria-label="ลด">−</button><span>${i.qty}</span><button data-act="inc" aria-label="เพิ่ม">+</button></div>
         </div>
         <button class="ci-del" data-act="del" aria-label="ลบ">${ICON.x}</button>
-      </div>`).join('') : emptyHTML('ตะกร้าว่าง · กด "สแกนเพิ่ม" เพื่อเริ่มสแกนสินค้า');
+      </div>`).join('') : `<div class="cart-empty"><div class="ce-ic">${sv('<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11l2-8H6"/>').replace('width="22" height="22"','width="40" height="40"')}</div><b>ตะกร้ายังว่างอยู่</b>กดปุ่ม "สแกนเพิ่มสินค้า" ด้านบน<br>สแกนเจอสินค้าไหนจะเพิ่มเข้าตะกร้าให้ทันที</div>`;
   }
 
   $('cartList').addEventListener('click', e => {
