@@ -530,15 +530,16 @@
     setTimeout(() => $('aName').focus(), 300);
   }
 
-  /* สแกนเนอร์มาตรฐาน (html5-qrcode) เสถียรและรองรับทุกอุปกรณ์ */
+  /* สแกนเนอร์ (html5-qrcode) ปรับให้เร็ว: พักกล้องแทนปิด, แสดงผลก่อนปิดกล้อง, ซูม+โฟกัสต่อเนื่อง */
   let qr = null, scanMode = 'check', scanLock = false, torchOn = false;
+  let idleTimer = null, audioCtx = null;
 
   function getQr() {
     if (!qr) {
       const F = Html5QrcodeSupportedFormats;
       qr = new Html5Qrcode('reader', {
         verbose: false,
-        formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128, F.CODE_39],
+        formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128],
         experimentalFeatures: { useBarCodeDetectorIfSupported: true }
       });
     }
@@ -548,38 +549,64 @@
   async function openScanner(mode) {
     scanMode = mode;
     scanLock = false;
-    if (qr && qr.isScanning) return;
+    clearTimeout(idleTimer);
     $('scTitle').textContent = mode === 'add' ? 'สแกนสินค้าใหม่' : 'สแกนเช็คราคา';
     $('scanner').classList.add('open');
+
+    const q = getQr();
+    if (q.isScanning) {                       // กล้องยังเปิดค้างอยู่ แค่เล่นต่อ
+      try { q.resume(); } catch (e) {}
+      $('scHint').textContent = 'วางบาร์โค้ดให้อยู่ในกรอบ';
+      return;
+    }
+
     $('scHint').textContent = 'กำลังเปิดกล้อง...';
     $('torchBtn').style.visibility = 'hidden';
     try {
       const config = {
-        fps: 20,
-        qrbox: { width: 280, height: 140 },
-        aspectRatio: 1.777,
-        disableFlip: true
+        fps: 25,
+        qrbox: { width: 300, height: 150 },
+        disableFlip: true,
+        videoConstraints: {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          advanced: [{ focusMode: 'continuous' }]
+        }
       };
-      await getQr().start({ facingMode: 'environment' }, config, onScan, () => {});
+      await q.start({ facingMode: 'environment' }, config, onScan, () => {});
       $('scHint').textContent = 'วางบาร์โค้ดให้อยู่ในกรอบ';
       setupTorch();
+      try {                                    // ซูม 2 เท่า ถ้าเครื่องรองรับ
+        const z = q.getRunningTrackCameraCapabilities().zoomFeature();
+        if (z.isSupported()) z.apply(Math.min(2, z.max()));
+      } catch (e) {}
     } catch (e) {
       $('scHint').textContent = 'เปิดกล้องไม่ได้ · กรุณาอนุญาตการใช้กล้อง หรือกด "เลือกรูป"';
     }
   }
 
-  async function closeScanner() {
-    if (qr && qr.isScanning) { try { await qr.stop(); } catch (e) {} }
+  function closeScanner() {
     torchOn = false;
     $('torchBtn').classList.remove('on');
-    $('scanner').classList.remove('open');
+    $('scanner').classList.remove('open');    // ปิดหน้าจอทันที ไม่รอกล้อง
+    if (qr && qr.isScanning) {
+      try { qr.pause(true); } catch (e) {}
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(async () => {    // ไม่ได้ใช้ 45 วิ ค่อยปิดกล้องจริง
+        if (qr && qr.isScanning && !$('scanner').classList.contains('open')) {
+          try { await qr.stop(); } catch (e) {}
+        }
+      }, 45000);
+    }
   }
 
   function onScan(text) {
     if (scanLock) return;
     scanLock = true;
     beep();
-    closeScanner().then(() => handleCode(text));
+    handleCode(text);                          // แสดงผลก่อน
+    closeScanner();                            // แล้วค่อยพักกล้อง
   }
 
   function handleCode(code) {
@@ -600,6 +627,7 @@
       await qr.getRunningTrackCameraCapabilities().torchFeature().apply(torchOn);
       $('torchBtn').classList.toggle('on', torchOn);
     } catch (e) {
+      torchOn = false;
       toast('เครื่องนี้ใช้ไฟฉายผ่านเว็บไม่ได้', 'err');
     }
   }
@@ -620,6 +648,8 @@
     const file = e.target.files[0];
     e.target.value = '';
     if (!file) return;
+    // scanFile ต้องใช้ตอนกล้องไม่ทำงาน จึงปิดกล้องจริงก่อน
+    clearTimeout(idleTimer);
     if (qr && qr.isScanning) { try { await qr.stop(); } catch (err) {} }
     $('scanner').classList.remove('open');
     try {
@@ -634,11 +664,11 @@
   function beep() {
     try { navigator.vibrate && navigator.vibrate(80); } catch (e) {}
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.frequency.value = 1200; o.connect(g); g.connect(ctx.destination);
-      g.gain.setValueAtTime(0.15, ctx.currentTime);
-      o.start(); o.stop(ctx.currentTime + 0.12);
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.frequency.value = 1200; o.connect(g); g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      o.start(); o.stop(audioCtx.currentTime + 0.12);
     } catch (e) {}
   }
 
