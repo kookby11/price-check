@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สร้างไอคอนแอป</title>
+<style>
+  body{font-family:sans-serif;text-align:center;padding:24px;background:#f3f4fa;color:#181b34}
+  canvas{width:220px;height:220px;border-radius:44px;box-shadow:0 10px 30px rgba(30,18,89,.3);margin:16px 0}
+  a{display:block;max-width:320px;margin:12px auto;padding:14px;border-radius:14px;background:#4a2fbd;color:#fff;text-decoration:none;font-size:16px}
+</style>
+</head>
+<body>
+<h2>ไอคอนแอปเช็คราคา</h2>
+<canvas id="preview" width="512" height="512"></canvas>
+<a id="d512" download="icon-512.png">ดาวน์โหลด icon-512.png</a>
+<a id="d192" download="icon-192.png">ดาวน์โหลด icon-192.png</a>
+<script>
+  function draw(size) {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const x = c.getContext('2d');
+    const s = size / 512;
+
+    // พื้นหลังไล่สีม่วง
+    const g = x.createLinearGradient(0, 0, size, size);
+    g.addColorStop(0, '#1e1259');
+    g.addColorStop(0.7, '#4a2fbd');
+    g.addColorStop(1, '#7b5cf0');
+    x.fillStyle = g;
+    x.fillRect(0, 0, size, size);
+
+    // แท่งบาร์โค้ด
+    x.fillStyle = '#ffffff';
+    const bars = [8, 4, 12, 4, 8, 16, 4, 8, 12, 4, 8, 4, 12];
+    let px = 156;
+    bars.forEach(w => { x.fillRect(px * s, 150 * s, w * s, 150 * s); px += w + 8; });
+
+    // เส้นเลเซอร์
+    x.fillStyle = '#14c8a4';
+    x.fillRect(116 * s, 222 * s, 280 * s, 7 * s);
+
+    // ข้อความ
+    x.fillStyle = '#ffffff';
+    x.font = 'bold ' + Math.round(56 * s) + 'px sans-serif';
+    x.textAlign = 'center';
+    x.textBaseline = 'middle';
+    x.fillText('เช็คราคา', 256 * s, 370 * s);
+    return c;
+  }
+
+  const big = draw(512);
+  document.getElementById('preview').getContext('2d').drawImage(big, 0, 0);
+  document.getElementById('d512').href = big.toDataURL('image/png');
+  document.getElementById('d192').href = draw(192).toDataURL('image/png');
+</script>
+</body>
+</html>
