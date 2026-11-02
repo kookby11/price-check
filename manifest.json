@@ -1,0 +1,15 @@
+{
+  "name": "เช็คราคาสินค้า ร้านบ้านโบว์",
+  "short_name": "ร้านบ้านโบว์",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f4fa",
+  "theme_color": "#1e1259",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
